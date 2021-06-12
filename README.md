@@ -98,6 +98,6 @@ In an effort to reduce cost a cheap clone of an ElecHouse PN532 NFC RFID module 
 ## Software
 To keep the application simple the ID Reader communicates through a simple serial port.
 
-The software on the arduino is a stripped down version of the example code in the [Adafruit PN532 Library](https://github.com/adafruit/Adafruit-PN532) that waits for a card to be detected and prints the UID to the serial port. The application continously polls the serial port for any new UID's and then matches that to an ID and signs the person in/out like normal.
+The software on the arduino is a stripped down version of the example code in the [Adafruit PN532 Library](https://github.com/adafruit/Adafruit-PN532) that waits for a Mifare Classic card to be detected and prints the UID to the serial port. The application continously polls the serial port for any new UID's and then matches that to an ID and signs the person in/out like normal.
 
 Source code for the ID Reader is in the [ID Reader folder](https://github.com/AndyHegemann/FRC_TimeClock/tree/main/ID_Reader)

@@ -39,7 +39,7 @@ In order, left to right, top to bottom:
   * Unlike other areas of the settings page the People File Viewer does not automatically save so please remember to save the file when you are done editing
     
 ## People File CSV Specifications
-The column names must match the example file exactly or the applicaiton will not work properly or at all
+The column names must match the [example file](https://github.com/AndyHegemann/FRC_TimeClock/blob/main/Sample_CSV_Files/test_people.csv) exactly or the applicaiton will not work properly or at all
 
 Required Columns (extras may be included, but will not be used by the application and could cause instability):
 * ID: The person's unique identification number

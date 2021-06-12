@@ -10,20 +10,18 @@ The Main page handles signing in and out, displaying who is currently active and
 
 ![main_page](https://user-images.githubusercontent.com/5580706/121765850-0beb9780-cb0b-11eb-9147-3eaec6c3cbdc.PNG)
 
-[insert main page picture here]
 
 ## Settings Page
 The Settings page handles all of the behind the scenes functions. 
 
 ![settings_page](https://user-images.githubusercontent.com/5580706/121765853-1574ff80-cb0b-11eb-9bbc-2774bec19abf.PNG)
 
-[insert settings page picture here]
 
 In order, left to right, top to bottom:
 * Automatic Attendance File: Location, Name and Time Cutoff 
   * The time cutoff value is used to keep students who signout after midnight on the previous days attendance file 
 * RFID ID card reader settings 
-  * The application was designied to poll a serial port for the UID of common Mifare classic cards being read by a PN532 hooked to an arduino
+  * The application was designied to poll a serial connection with an arduino that reads the UID of common Mifare classic cards with a PN532
   * A message below the port selector will show when a valid serial port is selected, when an ID card is selected the UID will be shown there instead
   * The ID card reader can also disabled
 * Manually Generate Attendance CSV
@@ -35,7 +33,7 @@ In order, left to right, top to bottom:
 * Clear Settings
   * This clears all of the stored settings like: Attendance save location, people file selection, serial port, and the like
 * People File Viewer
-  * **Only make edits when no one is signed in**, the application currently does not retroactively change peoples ID in attendance files. Making changes while people are signed in will make the applicaiton unsable and potentialy compromise attendance files
+  * **Only make edits when no one is signed in**, the application does not retroactively change peoples ID in attendance files. Making changes while people are signed in will make the applicaiton unsable and potentialy compromise attendance files
   * This shows the current people CSV file used to assign ID's and badge UID's to Names
   * While there is rudimentary editing support it is highly reccomended to only edit values within the application. Adding additional people is best handled with external programs 
   * Unlike other areas of the settings page the People File Viewer does not automatically save so please remember to save the file when you are done editing
@@ -43,7 +41,7 @@ In order, left to right, top to bottom:
 ## People File CSV Specifications
 The column names must match the example file exactly or the applicaiton will not work properly or at all
 
-Required Columns (extras may be include but will not be used and could cause instability):
+Required Columns (extras may be included, but will not be used by the application and could cause instability):
 * ID: The person's unique identification number
 * First_Name: The person's first name
 * Last_Name: The person's last name
@@ -59,6 +57,8 @@ The attendance file will have the folowing columns:
 * Time_Out
 * Destination: Is selected on the main page before signing out or "Forced Signout" if they were signed out with the Signout Everyone button 
 * Hours: Number of hours they were signed in rounded to 2 decimal places 
+
+See the sample attendance file: [20210611_attendance.csv](https://github.com/AndyHegemann/FRC_TimeClock/blob/main/Sample_CSV_Files/20210611_attendance.csv)
 
 
 # Building the application
@@ -98,6 +98,6 @@ In an effort to reduce cost a cheap clone of an ElecHouse PN532 NFC RFID module 
 ## Software
 To keep the application simple the ID Reader communicates through a simple serial port.
 
-The software on the arduino is a stripped down version of the example code in the [Adafruit PN532 Library](https://github.com/adafruit/Adafruit-PN532) that waits for a card to be detected and prints the UID to the serial port. The application continously polls the serial port for any new UID's
+The software on the arduino is a stripped down version of the example code in the [Adafruit PN532 Library](https://github.com/adafruit/Adafruit-PN532) that waits for a card to be detected and prints the UID to the serial port. The application continously polls the serial port for any new UID's and then matches that to an ID and signs the person in/out like normal.
 
-Source code for the ID Reader is in the ID Reader folder
+Source code for the ID Reader is in the [ID Reader folder](https://github.com/AndyHegemann/FRC_TimeClock/tree/main/ID_Reader)

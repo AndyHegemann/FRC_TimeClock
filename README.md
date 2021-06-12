@@ -1,17 +1,21 @@
 Time Tracking app developed by 4418 that interfaces to CSV files
 
 # Using the application
-To get up and running load your Poeple File CSV (file requirements) in the settings page and then everyone can enter their ID on the main page to sign in and out.
+To get up and running load your Poeple File CSV ([file requirements](https://github.com/AndyHegemann/FRC_TimeClock#people-file-csv-specifications)) in the settings page and then everyone can enter their ID on the main page to sign in and out.
 
 Everytime someone signs in or out the attendance file will be updated
 
 ## Main Page
 The Main page handles signing in and out, displaying who is currently active and echoing the sign in/out activity
 
+![main_page](https://user-images.githubusercontent.com/5580706/121765850-0beb9780-cb0b-11eb-9147-3eaec6c3cbdc.PNG)
+
 [insert main page picture here]
 
 ## Settings Page
 The Settings page handles all of the behind the scenes functions. 
+
+![settings_page](https://user-images.githubusercontent.com/5580706/121765853-1574ff80-cb0b-11eb-9bbc-2774bec19abf.PNG)
 
 [insert settings page picture here]
 

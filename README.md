@@ -1,7 +1,7 @@
 Time Tracking app developed by 4418 that interfaces to CSV files, inspired by https://github.com/team294/signinapp and https://github.com/mstrperson/qt-timeclock
 
 # Using the application
-To get up and running load your Poeple File CSV ([file requirements](https://github.com/AndyHegemann/FRC_TimeClock#people-file-csv-specifications)) in the settings page and then everyone can enter their ID on the main page to sign in and out.
+To get up and running, download the latest release from the [Releases](https://github.com/AndyHegemann/FRC_TimeClock/releases) page and then load your "People File CSV" ([file requirements](https://github.com/AndyHegemann/FRC_TimeClock#people-file-csv-specifications)) in the settings page. Everyone can then enter their ID on the main page to sign in and out.
 
 Everytime someone signs in or out the attendance file will be updated
 

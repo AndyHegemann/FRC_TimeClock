@@ -69,26 +69,25 @@ class Widget(QWidget):
         self.current_date_time = QDateTime.currentDateTime()
         self.ui.lineEdit_clock.setText(self.current_date_time.toString('M/d/yyyy hh:mm:ss'))
 
-    def read_id(self, initial=False):
-        if initial:
-            try:
-                self.arduino = serial.Serial(port=self.id_reader_com_port, baudrate=115200, timeout=.1)
-                self.ui.lineEdit_com_echo.setText("Reader connected")
-            except:
-                self.ui.lineEdit_com_echo.setText("Error: No Reader Detected")
-                return
+    def read_id(self):
         try:
             self.badge_id = self.arduino.readline()
             if self.badge_id:
                 # Convert to a string, pull the number out and convert to an int
                 self.badge_id = str(self.badge_id)
                 self.badge_id = self.badge_id.split("'")[1]
-                self.sign_inout(False, self.badge_id)
-                self.ui.lineEdit_com_echo.setText(self.badge_id)
+                self.ui.textEdit_com.append("Badge ID Scanned: " + self.badge_id)
+                self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+                try:
+                    self.sign_inout(False, self.badge_id)
+                except:
+                    self.ui.textEdit_com.append("Error: Associated ID not found")
+                    self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+                    pass
         except:
             pass
 
-    # Method for retreiving and initializing saved settigns
+    # Method for retreiving and initializing saved settings
     def load_settings(self):
         self.settings = QSettings('Team Impulse', 'Sign In App')
         try:
@@ -121,7 +120,7 @@ class Widget(QWidget):
             try:
                 self.ui.com_selector.setCurrentIndex(self.settings.value("com_index"))
                 self.id_reader_com_port = self.ui.com_selector.currentText()
-                self.read_id(1)
+                self.open_com()
             except:
                 pass
 
@@ -182,30 +181,96 @@ class Widget(QWidget):
         self.ui.lineEdit_export_suffix.returnPressed.connect(self.export_file_path_update)
         self.ui.lineEdit_destination_other.returnPressed.connect(self.sign_inout)
         self.ui.lineEdit_destination_other.installEventFilter(self)
+        self.ui.btn_open_com.pressed.connect(self.open_com)
+        self.ui.btn_close_com.pressed.connect(self.close_com)
 
-    # Methods for connecting to and enabling the ID reader
+    # Methods for the ID reader
     def enable_id_reader(self):
         if self.ui.checkBox_enable_reader.checkState():
             self.enable_id_reader_timer(1)
+
+            self.ui.btn_update_com.setEnabled(1)
+            self.ui.com_selector.setEnabled(1)
+            self.ui.textEdit_com.setEnabled(1)
+            self.ui.btn_open_com.setEnabled(1)
+            self.ui.btn_close_com.setEnabled(1)
+            self.ui.label_8.setEnabled(1)
+            self.ui.textEdit_com.append("ID Reader Enabled")
+            self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+
         else:
             self.enable_id_reader_timer(0)
 
+            self.ui.btn_update_com.setEnabled(0)
+            self.ui.com_selector.setEnabled(0)
+            self.ui.textEdit_com.setEnabled(0)
+            self.ui.btn_open_com.setEnabled(0)
+            self.ui.btn_close_com.setEnabled(0)
+            self.ui.label_8.setEnabled(0)
+            self.ui.textEdit_com.append("ID Reader Disabled")
+            self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+
+            try:
+                self.arduino.close()
+                self.ui.textEdit_com.append("Closed Port: " + self.id_reader_com_port)
+                self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+            except:
+                pass
+
     def enable_id_reader_timer(self, enable):
         if enable:
-            self.id_reader_clock.start(500)     # 2Hz
+            self.id_reader_clock.start(500)     # 2Hz scan rate
         else:
             self.id_reader_clock.stop()
 
     def select_com(self):
+        self.close_com()
         self.settings.setValue("com_index", self.ui.com_selector.currentIndex())
         self.id_reader_com_port = self.ui.com_selector.currentText()
-        self.read_id(1)
+        #self.open_com()
 
     def update_com(self):
         self.ui.com_selector.clear()
+        self.ui.com_selector.addItem("Select Port")
         self.ports = serial.tools.list_ports.comports()
         for p in self.ports:
             self.ui.com_selector.addItem(p.device)
+
+
+    def open_com(self):
+        if self.id_reader_com_port == "Select Port":
+            self.ui.textEdit_com.append("Please select a port to open")
+            self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+            return
+        try:
+            if self.arduino.is_open():
+                self.arduino.close()
+                self.ui.textEdit_com.append("Port already open, closing and reopening")
+                self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+        except:
+            pass
+
+        try:
+            self.arduino = serial.Serial(port=self.id_reader_com_port, baudrate=115200, timeout=.1)
+            self.ui.textEdit_com.append("Port connected: " + self.id_reader_com_port)
+            self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+        except:
+            self.ui.textEdit_com.append("Error: Can't open Serial Port: " + self.id_reader_com_port)
+            self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+            return
+
+    def close_com(self):
+        if self.id_reader_com_port == "Select Port" or self.id_reader_com_port == "":
+            #self.ui.textEdit_com.append("No Port Selected")
+            return
+        try:
+            self.arduino.close()
+            self.ui.textEdit_com.append("Closed Port: " + self.id_reader_com_port)
+            self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+        except:
+            self.ui.textEdit_com.append("Error: Unable to close Port: " + self.id_reader_com_port)
+            self.ui.textEdit_com.moveCursor(QtGui.QTextCursor.End)
+            pass
 
     # Main logic and dateframe minipulation for time tracking
     def sign_inout(self, forced=False, badge_id=None):
@@ -213,6 +278,7 @@ class Widget(QWidget):
             self.people_csv_data = self.people_csv_data
         except:
             self.ui.textEdit.append("Error: No People File selected, please load a file")
+            self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
             return
         if self.ui.lineEdit_id_enter.text() == "" and badge_id == None:
             self.ui.lineEdit_id_enter.setFocus()
@@ -232,6 +298,7 @@ class Widget(QWidget):
             if self.active_users.query('ID == @self.id').empty:  # Sign in the person and add to active users list
                 self.ui.textEdit.append(str(self.temp_data['First_Name'][0]) + " " + str(self.temp_data['Last_Name'][0]) + 
                                                            " signed in at: " + self.current_date_time.toString('hh:mm:ss'))
+                self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
                 self.active_users = self.active_users.append(self.temp_data)
                 self.active_users.reset_index(drop=True, inplace=True)
 
@@ -284,6 +351,7 @@ class Widget(QWidget):
                                         + " signed out at: " + self.current_date_time.toString('hh:mm:ss') +
                                         ", worked: " + str(self.hours) + "hours, Destination: "
                                         + str(self.destination))
+                self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
 
                 # Save the active users data so that the program can be closed and opened whenever
                 self.active_users.to_csv(self.active_users_savepath, index=False)
@@ -292,6 +360,7 @@ class Widget(QWidget):
                 self.data_records.to_csv(self.savepath / self.export_file_name, index=False)
         else:
             self.ui.textEdit.append("Error: User Not Found")
+            self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
         self.ui.lineEdit_destination_other.clear()
         self.ui.lineEdit_id_enter.clear()
         self.ui.lineEdit_signed_in.setText(str(self.active_users.shape[0]))
@@ -327,15 +396,14 @@ class Widget(QWidget):
     def export_file_path_update(self):
 #need to add a check to see if there are any logged in people be for changing files or they wont be able to log out nicely
         self.settings.setValue("suffix", str(self.ui.lineEdit_export_suffix.text()))
-        self.export_file_name = self.start_date.toString(self.ui.lineEdit_export_prefix_format.text()) + 
-                                                         self.ui.lineEdit_export_suffix.text() + ".csv"
+        self.export_file_name = self.start_date.toString(self.ui.lineEdit_export_prefix_format.text()) + self.ui.lineEdit_export_suffix.text() + ".csv"
         self.ui.lineEdit_export_location.setText(str(self.savepath / self.export_file_name))
         self.ui.textEdit.append("Export file will be saved to: " + str(self.savepath / self.export_file_name))
+        self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
         self.settings.setValue("export_location", self.savepath)
         self.settings.setValue("prefix_format", self.ui.lineEdit_export_prefix_format.text())
         try:
-            self.export_file_name = self.start_date.toString(self.ui.lineEdit_export_prefix_format.text()) + 
-                                                             self.ui.lineEdit_export_suffix.text() + ".csv"
+            self.export_file_name = self.start_date.toString(self.ui.lineEdit_export_prefix_format.text()) + self.ui.lineEdit_export_suffix.text() + ".csv"
             self.ui.lineEdit_export_location.setText(str(self.savepath / self.export_file_name))
         except:
             pass
@@ -355,14 +423,17 @@ class Widget(QWidget):
             self.export_file_path_update()
         else:
             self.ui.textEdit.append("Warning: No folder selected")
+            self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
 
     def clear_temp_files(self):
         # Should delete the active users file and clear the active users dataframe
         try:
             os.remove(self.active_users_savepath)
             self.ui.textEdit.append("Temp Files deleted, please check attendance file for errors and restart the program")
+            self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
         except:
             self.ui.textEdit.append("No Temp Files found")
+            self.ui.textEdit.moveCursor(QtGui.QTextCursor.End)
 
     #Methods for handling the people csv table
     def select_file(self, initial=False):
@@ -414,8 +485,7 @@ class ActiveModel(QAbstractListModel):
     def data(self, index, role):
         if role == Qt.DisplayRole:
             # See below for the data structure.
-            text = str(self.todos['First_Name'][index.row()]) + " " + 
-                       str(self.todos['Last_Name'][index.row()])
+            text = str(self.todos['First_Name'][index.row()]) + " " + str(self.todos['Last_Name'][index.row()])
             # Return the todo text only.
             return text
 

@@ -8,20 +8,20 @@ Everytime someone signs in or out the attendance file will be updated
 ## Main Page
 The Main page handles signing in and out, displaying who is currently active and echoing the sign in/out activity
 
-![main_page](https://user-images.githubusercontent.com/5580706/121765850-0beb9780-cb0b-11eb-9147-3eaec6c3cbdc.PNG)
+![main_page](https://github.com/AndyHegemann/FRC_TimeClock/blob/ae71403bd39e6d9926815a07f3cbfc903987aea1/App_Images/main_page.PNG)
 
 
 ## Settings Page
 The Settings page handles all of the behind the scenes functions. 
 
-![settings_page](https://user-images.githubusercontent.com/5580706/121765853-1574ff80-cb0b-11eb-9bbc-2774bec19abf.PNG)
+![settings_page](https://github.com/AndyHegemann/FRC_TimeClock/blob/fda066b15b8c19587ac382d68f5d1a2da37b9f77/App_Images/settings_page.PNG)
 
 
 In order, left to right, top to bottom:
 * Automatic Attendance File: Location, Name and Time Cutoff 
   * The time cutoff value is used to keep students who signout after midnight on the previous days attendance file 
 * RFID ID card reader settings 
-  * The application was designied to poll a serial connection with an arduino that reads the UID of common Mifare classic cards with a PN532
+  * The application was designied to poll a serial connection with an arduino that reads the UID of RFID Cards
   * A message below the port selector will show when a valid serial port is selected, when an ID card is selected the UID will be shown there instead
   * The ID card reader can also disabled
 * Manually Generate Attendance CSV
@@ -91,13 +91,21 @@ Another common issue was data files not getting bundled, if you add files ensure
 
 # Building the ID Reader 
 ## Hardware
-In an effort to reduce cost a cheap clone of an ElecHouse PN532 NFC RFID module V3 was wired via SPI to an Arduino Nano clone (most any arduino campatable MCU should work fine). The arduino then is connected to the computer via USB.
+In an effort to reduce cost a cheap there are 2 options: 
+1. **Mifare classic** cards with a clone of an ElecHouse PN532 NFC RFID module V3 was wired via SPI to an Arduino Nano clone (most any arduino campatable MCU should work fine). [Example Wiring](https://youtu.be/2qf6gIqhWNA?t=204)
+2. **125kHz** cards with a RDM6300 module wired via serial to an Arduino Nano clone (most any arduino campatable MCU should work fine). [Example Wiring](https://circuitdigest.com/microcontroller-projects/interfacing-rdm6300-rfid-reader-module-interfacing-with-arduino-nano)
 
-[Example Wiring](https://youtu.be/2qf6gIqhWNA?t=204)
+Both options have the arduino connected to the computer via USB.
+
+
 
 ## Software
 To keep the application simple the ID Reader communicates through a simple serial port.
 
-The software on the arduino is a stripped down version of the example code in the [Adafruit PN532 Library](https://github.com/adafruit/Adafruit-PN532) that waits for a Mifare Classic card to be detected and prints the UID to the serial port. The application continously polls the serial port for any new UID's and then matches that to an ID and signs the person in/out like normal.
+Option 1: The software on the arduino is a stripped down version of the example code in the [Adafruit PN532 Library](https://github.com/adafruit/Adafruit-PN532) that waits for a Mifare Classic card to be detected and prints the UID to the serial port. The application continously polls the serial port for any new UID's and then matches that to an ID and signs the person in/out like normal.
 
-Source code for the ID Reader is in the [ID Reader folder](https://github.com/AndyHegemann/FRC_TimeClock/tree/main/ID_Reader)
+Option 2: The software on the arduino is a modified version of the example code in the [RDM6300 Library](https://github.com/arduino12/rdm6300) that waits for a 125kHz card to be detected and prints the UID to the serial port. The application continously polls the serial port for any new UID's and then matches that to an ID and signs the person in/out like normal.
+
+Source code for the ID Reader is in the following folders:
+1. [ID_Reader_PN532 folder](https://github.com/AndyHegemann/FRC_TimeClock/tree/main/ID_Reader_PN532)
+2. [ID_Reader_RDM6300 folder](https://github.com/AndyHegemann/FRC_TimeClock/tree/main/ID_Reader_RDM6300)

@@ -123,6 +123,9 @@ class Widget(QWidget):
                 self.open_com()
             except:
                 pass
+        else:
+            self.id_reader_com_port = "Select Port"
+
 
     def clear_settings(self):
         self.settings.clear()
@@ -260,6 +263,12 @@ class Widget(QWidget):
             return
 
     def close_com(self):
+#        try:
+#            self.id_reader_com_port
+#        except:
+#            self.id_reader_com_port = "Select Port"
+#            print("There was an issue with the id_reader_com_port var")
+            
         if self.id_reader_com_port == "Select Port" or self.id_reader_com_port == "":
             #self.ui.textEdit_com.append("No Port Selected")
             return
